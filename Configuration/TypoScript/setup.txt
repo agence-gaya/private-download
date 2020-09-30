@@ -1,0 +1,31 @@
+plugin.tx_privatedownload {
+    settings {
+        typeNum = {$plugin.tx_privatedownload.settings.typeNum}
+    }
+}
+
+privateDownload = PAGE
+privateDownload {
+    10 = USER
+    10 {
+        userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
+        extensionName = PrivateDownload
+        pluginName = Download
+        switchableControllerActions {
+            Download {
+                0 = getFile
+                1 = getProcessedFile
+            }
+        }
+    }
+
+    typeNum = {$plugin.tx_privatedownload.settings.typeNum}
+
+    config {
+        disableAllHeaderCode = 1
+        xhtml_cleaning = 0
+        no_cache = 1
+        admPanel = 0
+        debug = 0
+    }
+}

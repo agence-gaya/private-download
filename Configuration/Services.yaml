@@ -1,0 +1,6 @@
+services:
+  GAYA\PrivateDownload\EventListener\GeneratePublicUrlForResource:
+    tags:
+      - name: event.listener
+        identifier: 'generatePublicUrlForResource'
+        event: TYPO3\CMS\Core\Resource\Event\GeneratePublicUrlForResourceEvent
