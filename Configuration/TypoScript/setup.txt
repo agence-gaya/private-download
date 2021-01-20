@@ -1,6 +1,7 @@
 plugin.tx_privatedownload {
     settings {
         typeNum = {$plugin.tx_privatedownload.settings.typeNum}
+        baseURL = {$plugin.tx_privatedownload.settings.baseURL}
     }
 }
 

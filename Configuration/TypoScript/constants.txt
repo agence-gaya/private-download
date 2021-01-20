@@ -1,5 +1,6 @@
 plugin.tx_privatedownload {
 	settings {
 		typeNum = 12013
+		baseURL = /index.php
 	}
 }
