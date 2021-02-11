@@ -5,6 +5,8 @@ plugin.tx_privatedownload {
     }
 }
 
+module.tx_privatedownload.settings < plugin.tx_privatedownload.settings
+
 privateDownload = PAGE
 privateDownload {
     10 = USER
