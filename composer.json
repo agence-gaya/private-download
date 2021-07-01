@@ -31,5 +31,10 @@
     "psr-4": {
       "GAYA\\PrivateDownload\\": "Classes"
     }
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "private_download"
+    }
   }
 }
