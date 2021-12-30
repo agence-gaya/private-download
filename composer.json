@@ -23,7 +23,7 @@
     }
   ],
   "homepage": "https://github.com/agence-gaya/private-download",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "require": {
     "typo3/cms-extbase": "^10.4.0"
   },
