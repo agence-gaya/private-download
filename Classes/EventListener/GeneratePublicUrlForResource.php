@@ -53,7 +53,7 @@ class GeneratePublicUrlForResource
                         $queryParameterArray['tx_privatedownload_download']['action'] = 'getProcessedFile';
                     }
 
-                    $queryStringSeparator = strpos($typoScript['baseURL'], '?') !== null ? '&' : '?';
+                    $queryStringSeparator = strpos($typoScript['baseURL'], '?') !== false ? '&' : '?';
 
                     $queryParameterArray['tx_privatedownload_download']['token'] = GeneralUtility::hmac(implode('|', $queryParameterArray), 'privateDownload');
                     $publicUrl = GeneralUtility::locationHeaderUrl(PathUtility::getAbsoluteWebPath(Environment::getPublicPath() . $typoScript['baseURL']));
