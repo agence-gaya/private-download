@@ -28,12 +28,14 @@ class GeneratePublicUrlForResource
 
     public function __invoke(GeneratePublicUrlForResourceEvent $event): void
     {
-        $typoScript = $this->configurationManager->getConfiguration(
-            ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
-            'privatedownload'
-        );
+        if ($event->getDriver() instanceof LocalDriver
+            && ($event->getResource() instanceof File || $event->getResource() instanceof ProcessedFile)
+        ) {
+            $typoScript = $this->configurationManager->getConfiguration(
+                ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
+                'privatedownload'
+            );
 
-        if ($event->getDriver() instanceof LocalDriver && ($event->getResource() instanceof File || $event->getResource() instanceof ProcessedFile)) {
             try {
                 $publicUrl = $event->getDriver()->getPublicUrl($event->getResource()->getIdentifier());
 
