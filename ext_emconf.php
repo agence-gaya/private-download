@@ -14,7 +14,7 @@ $EM_CONF['private_download'] = array(
     'version' => '0.1.0',
     'constraints' => array(
         'depends' => array(
-            'typo3' => '10.4.0-10.4.99',
+            'typo3' => '10.4.22-10.4.99',
         ),
         'conflicts' => array(
         ),
