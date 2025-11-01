@@ -55,7 +55,7 @@ class GeneratePublicUrlForResource
 
                     $queryStringSeparator = strpos($typoScript['baseURL'], '?') !== false ? '&' : '?';
 
-                    $queryParameterArray['tx_privatedownload_download']['token'] = GeneralUtility::hmac(implode('|', $queryParameterArray), 'privateDownload');
+                    $queryParameterArray['tx_privatedownload_download']['token'] = GeneralUtility::hmac(json_encode($queryParameterArray), 'privateDownload');
                     $publicUrl = GeneralUtility::locationHeaderUrl(PathUtility::getAbsoluteWebPath(Environment::getPublicPath() . $typoScript['baseURL']));
                     $publicUrl .= $queryStringSeparator . http_build_query($queryParameterArray, '', '&', PHP_QUERY_RFC3986);
 

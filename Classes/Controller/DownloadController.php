@@ -104,8 +104,8 @@ class DownloadController extends ActionController
             'type' => $this->settings['typeNum'],
             'tx_privatedownload_download' => [
                 'controller' => 'Download',
-                'file' => $queryParams['tx_privatedownload_download']['file'],
-                'action' => $queryParams['tx_privatedownload_download']['action']
+                'file' => (int)$queryParams['file'],
+                'action' => $queryParams['action']
             ]
         ];
 
@@ -115,7 +115,7 @@ class DownloadController extends ActionController
     protected function isTokenValid(array $parameters, Request $request): bool
     {
         return hash_equals(
-            GeneralUtility::hmac(implode('|', $parameters), 'privateDownload'),
+            GeneralUtility::hmac(json_encode($parameters), 'privateDownload'),
             $request->getArguments()['token'] ?? ''
         );
     }
