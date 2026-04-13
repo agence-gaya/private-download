@@ -1,8 +1,12 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
+
 namespace GAYA\PrivateDownload\EventListener;
 
+use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Crypto\HashService;
 use TYPO3\CMS\Core\Resource\Driver\LocalDriver;
 use TYPO3\CMS\Core\Resource\Event\GeneratePublicUrlForResourceEvent;
 use TYPO3\CMS\Core\Resource\Exception;
@@ -11,20 +15,12 @@ use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
+#[AsEventListener]
 class GeneratePublicUrlForResource
 {
-    /**
-     * @var ConfigurationManagerInterface
-     */
-    protected $configurationManager;
-
-    public function __construct()
-    {
-        $this->configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
-    }
+    public function __construct(private readonly ConfigurationManagerInterface $configurationManager, private readonly HashService $hashService) {}
 
     public function __invoke(GeneratePublicUrlForResourceEvent $event): void
     {
@@ -44,8 +40,8 @@ class GeneratePublicUrlForResource
                         'type' => $typoScript['typeNum'],
                         'tx_privatedownload_download' => [
                             'controller' => 'Download',
-                            'file' => $event->getResource()->getUid()
-                        ]
+                            'file' => $event->getResource()->getUid(),
+                        ],
                     ];
                     if ($event->getResource() instanceof File) {
                         $queryParameterArray['tx_privatedownload_download']['action'] = 'getFile';
@@ -53,15 +49,15 @@ class GeneratePublicUrlForResource
                         $queryParameterArray['tx_privatedownload_download']['action'] = 'getProcessedFile';
                     }
 
-                    $queryStringSeparator = strpos($typoScript['baseURL'], '?') !== false ? '&' : '?';
+                    $queryStringSeparator = str_contains((string) $typoScript['baseURL'], '?') ? '&' : '?';
 
-                    $queryParameterArray['tx_privatedownload_download']['token'] = GeneralUtility::hmac(json_encode($queryParameterArray), 'privateDownload');
+                    $queryParameterArray['tx_privatedownload_download']['token'] = $this->hashService->hmac(json_encode($queryParameterArray), 'privateDownload');
                     $publicUrl = GeneralUtility::locationHeaderUrl(PathUtility::getAbsoluteWebPath(Environment::getPublicPath() . $typoScript['baseURL']));
                     $publicUrl .= $queryStringSeparator . http_build_query($queryParameterArray, '', '&', PHP_QUERY_RFC3986);
 
                     $event->setPublicUrl($publicUrl);
                 }
-            } catch (Exception $exception) {
+            } catch (Exception) {
 
             }
         }

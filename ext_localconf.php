@@ -1,17 +1,20 @@
 <?php
-if (!defined('TYPO3_MODE')) {
+
+use GAYA\PrivateDownload\Controller\DownloadController;
+use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
+
+if (!defined('TYPO3')) {
     die('Access denied.');
 }
 
-\TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
-    'GAYA.PrivateDownload',
+ExtensionUtility::configurePlugin(
+    'PrivateDownload',
     'Download',
-    array(
-        'Download' => 'getFile,getProcessedFile',
-
-    ),
+    [
+        DownloadController::class => 'getFile,getProcessedFile',
+    ],
     // non-cacheable actions
-    array(
-
-    )
+    [
+        DownloadController::class => 'getFile,getProcessedFile',
+    ]
 );
