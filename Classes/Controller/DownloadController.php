@@ -1,10 +1,14 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
+
 namespace GAYA\PrivateDownload\Controller;
 
+use Exception;
 use GAYA\PrivateDownload\Resource\Event\CheckFileAccessEvent;
 use TYPO3\CMS\Core\Error\Http\PageNotFoundException;
 use TYPO3\CMS\Core\Http\ImmediateResponseException;
+use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ProcessedFileRepository;
@@ -16,44 +20,33 @@ use TYPO3\CMS\Extbase\Mvc\Request;
 
 class DownloadController extends ActionController
 {
-    /**
-     * @var ResourceFactory
-     */
-    protected $resourceFactory;
-
-    public function __construct(ResourceFactory $resourceFactory)
-    {
-        $this->resourceFactory = $resourceFactory;
-    }
-
-    public function callActionMethod()
-    {
-        if (!$this->isTokenValid($this->buildParametersFromRequest($this->request), $this->request)) {
-            throw new PageNotFoundException();
-        }
-        parent::callActionMethod();
-    }
+    public function __construct(private readonly ResourceFactory $resourceFactory) {}
 
     /**
-     * @param int $file
      * @throws ImmediateResponseException
      * @throws PageNotFoundException
      */
-    public function getFileAction(int $file)
+    public function getFileAction(int $file): void
     {
+
+        if (!$this->isTokenValid($this->buildParametersFromRequest($this->request), $this->request)) {
+            throw new PageNotFoundException();
+        }
+
         try {
             $fileObject = $this->resourceFactory->getFileObject($file);
             if ($fileObject->isDeleted() || $fileObject->isMissing()) {
                 $fileObject = null;
             }
+
             if (!$this->isFileValid($fileObject)) {
                 $fileObject = null;
             }
-        } catch (\Exception $e) {
+        } catch (Exception) {
             $fileObject = null;
         }
 
-        if ($fileObject === null) {
+        if (!$fileObject instanceof File) {
             throw new PageNotFoundException();
         }
 
@@ -65,12 +58,15 @@ class DownloadController extends ActionController
     }
 
     /**
-     * @param int $file
      * @throws ImmediateResponseException
      * @throws PageNotFoundException
      */
-    public function getProcessedFileAction(int $file)
+    public function getProcessedFileAction(int $file): void
     {
+        if (!$this->isTokenValid($this->buildParametersFromRequest($this->request), $this->request)) {
+            throw new PageNotFoundException();
+        }
+
         try {
             $processedFileRepository = GeneralUtility::makeInstance(ProcessedFileRepository::class);
             /** @var ProcessedFile|null $fileObject */
@@ -78,10 +74,11 @@ class DownloadController extends ActionController
             if (!$fileObject || $fileObject->isDeleted()) {
                 $fileObject = null;
             }
+
             if (!$this->isFileValid($fileObject->getOriginalFile())) {
                 $fileObject = null;
             }
-        } catch (\Exception $e) {
+        } catch (Exception) {
             $fileObject = null;
         }
 
@@ -100,22 +97,20 @@ class DownloadController extends ActionController
     {
         $queryParams = $request->getArguments();
 
-        $parameters = [
+        return [
             'type' => $this->settings['typeNum'],
             'tx_privatedownload_download' => [
                 'controller' => 'Download',
-                'file' => (int)$queryParams['file'],
-                'action' => $queryParams['action']
-            ]
+                'file' => (int) $queryParams['file'],
+                'action' => $queryParams['action'],
+            ],
         ];
-
-        return $parameters;
     }
 
     protected function isTokenValid(array $parameters, Request $request): bool
     {
         return hash_equals(
-            GeneralUtility::hmac(json_encode($parameters), 'privateDownload'),
+            $this->hashService->hmac(json_encode($parameters), 'privateDownload'),
             $request->getArguments()['token'] ?? ''
         );
     }
