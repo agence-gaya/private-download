@@ -9,17 +9,11 @@ module.tx_privatedownload.settings < plugin.tx_privatedownload.settings
 
 privateDownload = PAGE
 privateDownload {
-    10 = USER
+
+    10 = EXTBASEPLUGIN
     10 {
-        userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
         extensionName = PrivateDownload
         pluginName = Download
-        switchableControllerActions {
-            Download {
-                0 = getFile
-                1 = getProcessedFile
-            }
-        }
     }
 
     typeNum = {$plugin.tx_privatedownload.settings.typeNum}
