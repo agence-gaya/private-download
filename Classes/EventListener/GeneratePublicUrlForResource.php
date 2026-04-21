@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace GAYA\PrivateDownload\EventListener;
 
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Crypto\HashService;
+use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Resource\Driver\LocalDriver;
 use TYPO3\CMS\Core\Resource\Event\GeneratePublicUrlForResourceEvent;
 use TYPO3\CMS\Core\Resource\Exception;
@@ -24,6 +26,11 @@ class GeneratePublicUrlForResource
 
     public function __invoke(GeneratePublicUrlForResourceEvent $event): void
     {
+        //si on est en mode "backend" il ne faut pas modifier l'url publique
+        if ((($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface) && (ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend())) {
+            return;
+        }
+
         if ($event->getDriver() instanceof LocalDriver
             && ($event->getResource() instanceof File || $event->getResource() instanceof ProcessedFile)
         ) {
